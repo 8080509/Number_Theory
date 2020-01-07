@@ -13,7 +13,7 @@ def getPV(x):
 	x.append(edge)
 	P = set()
 	V = set()
-	preV = edge
+	preV = x.pop(0)
 	preD = True
 	for j in x:
 		newD = preV > j
@@ -21,6 +21,8 @@ def getPV(x):
 			P.add(preV)
 		elif preD and (not newD):
 			V.add(preV)
+		preV = j
+		preD = newD
 	return P, V
 
 def shiftFac(n, k):
@@ -70,7 +72,7 @@ def fMax(ops):
 
 #0 <= a < b <= ell - 2 = len(L) - 2
 def valShift(pi, x, a, b):
-	P, V = getPV(x)
+	P, V = getPV(pi)
 	assert 0 <= a
 	assert a <  b
 	U, L0 = uLFac(pi, x)
@@ -219,6 +221,9 @@ def rootGenSub(k, upper):
 			yield val + [j]
 
 def rootGen(n, P):
+	if not P:
+		yield [*range(n)]
+		return
 	P = sorted(P)
 	pM = P[-1]
 	assert pM < n
@@ -243,9 +248,9 @@ def ActionBasedGen(n, P):
 	nPerms = []
 	for p in P:
 		for pi in perms:
-			for b in range(1, nPV(*getPV(pi), p) - 1):
+			for b in range(2, nPV(*getPV(pi), p)):
 				for a in range(0, b):
-					nPerms.append(valShift(x, p, a, b))
+					nPerms.append(valShift(pi, p, a, b))
 		perms.extend(nPerms)
 		nPerms.clear()
 	for x in range(n):
@@ -253,13 +258,15 @@ def ActionBasedGen(n, P):
 			P, V = getPV(pi)
 			if x in V or x in P:
 				continue
-			ell = nPV(P, V, p)
-			for k in range(ell):
+			ell = nPV(P, V, x)
+			for k in range(1, ell):
 				nPerms.append(ascShift(pi, x, k))
 		perms.extend(nPerms)
 		nPerms.clear()
 	for x in range(n):
 		for pi in perms:
+			_, V = getPV(pi)
+			if x in V: continue
 			nPerms.append(fSActionX(pi, x))
 		perms.extend(nPerms)
 		nPerms.clear()
