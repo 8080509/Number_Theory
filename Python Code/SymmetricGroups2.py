@@ -716,6 +716,11 @@ def valeSetGenD(P, vM):
 			V.append(vM)
 			yield V
 
+# def valeSetGenN(n, P, v0 = 0):
+	# [*range(v0 + 1, n)]
+	# g
+	# for p in 
+
 # class BadValeCount(Exception):
 	
 	# @property

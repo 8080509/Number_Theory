@@ -1,8 +1,11 @@
 from itertools import chain
-from SymmetricGroups1 import compose, inverse, subDescGen, desc
+from SymmetricGroups1 import compose, inverse, subDescGen, desc, fSActionX
 
 # def shiftFac(n, k):
 	# return [*range(k-1), *range(k+1, n), k-1, k]
+
+def nPV(P, V, x):
+	return len([*filter(lambda i: i < x, V)]) - len([*filter(lambda i: i < x, P)])
 
 def getPV(x):
 	edge = float('inf')
@@ -13,11 +16,11 @@ def getPV(x):
 	preV = edge
 	preD = True
 	for j in x:
-		newD = prev > j
+		newD = preV > j
 		if (not preD) and newD:
-			P.add(prev)
+			P.add(preV)
 		elif preD and (not newD):
-			V.add(prev)
+			V.add(preV)
 	return P, V
 
 def shiftFac(n, k):
@@ -207,8 +210,60 @@ def valShiftPlot(x, p):
 		plot += mainGraphPlot(((pt[0], 0), (pt[0], edge)), 'none', 'black')
 	return plotWrapper(plot, xMax, xLen, stdTitle(x))
 
+def rootGenSub(k, upper):
+	if not k:
+		yield []
+		return
+	for j in range(2 * k - 1, upper):
+		for val in rootGenSub(k-1, j - 1):
+			yield val + [j]
 
+def rootGen(n, P):
+	P = sorted(P)
+	pM = P[-1]
+	assert pM < n
+	ops = [i for i in range(n) if i not in set(P)]
+	unset = [i for i in range(n) if i not in set(P)]
+	for posLst in rootGenSub(len(P), pM):
+		out = []
+		j = 0
+		unSetLst = [*unset]
+		pLst = P.copy()
+		for i in posLst:
+			while j < i:
+				out.append(unSetLst.pop(0))
+				j += 1
+			out.append(pLst.pop(0))
+			j += 1
+		out.extend(unSetLst)
+		yield out
 
+def ActionBasedGen(n, P):
+	perms = [*rootGen(n, P)]
+	nPerms = []
+	for p in P:
+		for pi in perms:
+			for b in range(1, nPV(*getPV(pi), p) - 1):
+				for a in range(0, b):
+					nPerms.append(valShift(x, p, a, b))
+		perms.extend(nPerms)
+		nPerms.clear()
+	for x in range(n):
+		for pi in perms:
+			P, V = getPV(pi)
+			if x in V or x in P:
+				continue
+			ell = nPV(P, V, p)
+			for k in range(ell):
+				nPerms.append(ascShift(pi, x, k))
+		perms.extend(nPerms)
+		nPerms.clear()
+	for x in range(n):
+		for pi in perms:
+			nPerms.append(fSActionX(pi, x))
+		perms.extend(nPerms)
+		nPerms.clear()
+	return perms
 
 
 
