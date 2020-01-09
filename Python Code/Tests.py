@@ -35,7 +35,7 @@ def tableGen(n, count = 1):
 	for P in sorted(sg2.admPinGen(n), key = lambda i: (len(i), i)):
 		pSet = {*P}
 		print('\\{%s\\} & %d & %.2f ms & %.2f ms & %.2f ms & %.2f ms \\\\\\cline{2-7}' % (
-			', '.join(map(str, P)),
+			', '.join(map(lambda i: str(i + 1), P)),
 			len({*sg2.magicPinGenFull(n, pSet)}),
 			bpgTTest(n, pSet, count) * 1000,
 			gpgTTest(n, pSet, 10 * count) * 1000,
