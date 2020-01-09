@@ -212,24 +212,23 @@ def valShiftPlot(x, p):
 		plot += mainGraphPlot(((pt[0], 0), (pt[0], edge)), 'none', 'black')
 	return plotWrapper(plot, xMax, xLen, stdTitle(x))
 
-def rootGenSub(k, upper):
+def rootGenSub(k, upperFixed, pinLst):
 	if not k:
 		yield []
 		return
-	for j in range(2 * k - 1, upper):
-		for val in rootGenSub(k-1, j - 1):
+	pinLst = pinLst.copy()
+	for j in range(2 * k - 1, min(upperFixed, pinLst.pop())):
+		for val in rootGenSub(k-1, j - 1, pinLst):
 			yield val + [j]
 
 def rootGen(n, P):
-	if not P:
-		yield [*range(n)]
-		return
+	# if not P:
+		# yield [*range(n)]
+		# return
 	P = sorted(P)
-	pM = P[-1]
-	assert pM < n
 	ops = [i for i in range(n) if i not in set(P)]
 	unset = [i for i in range(n) if i not in set(P)]
-	for posLst in rootGenSub(len(P), pM):
+	for posLst in rootGenSub(len(P), n, P):
 		out = []
 		j = 0
 		unSetLst = [*unset]

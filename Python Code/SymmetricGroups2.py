@@ -114,6 +114,31 @@ def desc(pi):
 		pI = i
 	return descSet
 
+def admPinTest(P):
+	"""Tests if the given pinnacle set is admiscible.
+	Give pinnacle set as an ordered list."""
+	for i in range(len(P)):
+		if P[i] - 2 * i < 2: #Checks that nPV(p) could be >= 2 for some vale set.  If not, return False.
+			return False
+	return True
+
+def admPinGenSub(n, a = 0):
+	out = [[[]]] #, [[k] for k in range(1 if a else 2, n)]]
+	# if a and :
+		# out.append(map(operator.add, repeat([1]), admPinGenSub(n - 1, a - 1)))
+	for k in range(1 if a else 2, n):
+		out.append(map(operator.add, repeat([k]), admPinGenSub(n - k, a + k - 2)))
+	return chain.from_iterable(out)
+
+def cumSum(iterable, start = 0):
+	for i in iterable:
+		start += i
+		yield start
+
+def admPinGen(n):
+	#note as determined before, p[i] >= 2 * i + 2
+	return map(lambda i: [*cumSum(i)], admPinGenSub(n))
+
 def pP(m):
 	peaks = set()
 	pinnacles = set()
@@ -683,6 +708,9 @@ def valid(mapping):
 		
 #P be a sorted list
 def valeSetGenF(P, pSet = None):
+	if not P:
+		yield [0]
+		return
 	if pSet is None:
 		pSet = {*P}
 	pm = P.pop(0)
@@ -715,6 +743,8 @@ def valeSetGenD(P, vM):
 			V = V.copy()
 			V.append(vM)
 			yield V
+
+# def valeSetGen(P):
 
 # def valeSetGenN(n, P, v0 = 0):
 	# [*range(v0 + 1, n)]
@@ -749,6 +779,10 @@ def valeSetGenD(P, vM):
 			# for res in magicPinGenFull(n, P, k + 1, given + [(k,)]):
 				# pass
 
+#let P be a set
+def magicPinGenCR(n, P):
+	return chain.from_iterable(magicPinGenFixedValeCR(n, P, {*V}) for V in valeSetGenF(sorted(P), P))
+
 def magicPinGenFixedValeCR(n, P, V, k = 0, given = [[]]):
 	if k == n:
 		return [val[0] for val in given]
@@ -759,6 +793,60 @@ def magicPinGenFixedValeCR(n, P, V, k = 0, given = [[]]):
 	else:
 		res = [comp + [sub[0] + (k,)] for val in given for sub, comp in subsetIterComp(val, 1)]
 	return magicPinGenFixedValeCR(n, P, V, k + 1, res)
+
+#let P be a set
+def magicPinGenFull(n, P):
+	return chain.from_iterable(magicPinGenFixedValeFull(n, P, {*V}) for V in valeSetGenF(sorted(P), P))
+
+def magicPinGenFixedValeFull(n, P, V):
+	k = 0
+	given = [[]]
+	while True:
+		if k == n:
+			return map(list.__getitem__, given, repeat(0))
+		if k in V:
+			res = map(operator.add, given, repeat([(k,)]))
+		elif k in P:
+			res = chain.from_iterable(
+				[
+					comp + [(*sub[0], k, *sub[1])],
+					comp + [(*sub[1], k, *sub[0])],
+				]
+				for val in given for sub, comp in subsetIterComp(val, 2)
+			)
+		else:
+			res = chain.from_iterable(
+				[
+					comp + [(*sub[0], k)],
+					comp + [(k, *sub[0])],
+				]
+				for val in given for sub, comp in subsetIterComp(val, 1)
+			)
+		given = [*res] #for efficiency, I'd like not to evaluate res into a list each iteration, but it gives incorrect results otherwise.
+		k += 1
+
+# def magicPinGenFixedValeFull(n, P, V, k = 0, given = [[]]):
+	# if k == n:
+		# return [val[0] for val in given]
+	# if k in V:
+		# res = [val + [(k,)] for val in given]
+	# elif k in P:
+		# res = sum([
+			# [
+				# comp + [sub[0] + (k,) + sub[1]],
+				# comp + [sub[1] + (k,) + sub[0]],
+			# ]
+			# for val in given for sub, comp in subsetIterComp(val, 2)
+		# ], [])
+	# else:
+		# res = sum([
+			# [
+				# comp + [sub[0] + (k,)],
+				# comp + [(k,) + sub[0]],
+			# ]
+			# for val in given for sub, comp in subsetIterComp(val, 1)
+		# ], [])
+	# return magicPinGenFixedValeFull(n, P, V, k + 1, res)
 
 # def valeSetGenU(P, vm, ops = None):
 	# if not P:
