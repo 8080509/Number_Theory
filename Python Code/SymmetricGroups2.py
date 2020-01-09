@@ -798,12 +798,13 @@ def magicPinGenFixedValeCR(n, P, V, k = 0, given = [[]]):
 def magicPinGenFull(n, P):
 	return chain.from_iterable(magicPinGenFixedValeFull(n, P, {*V}) for V in valeSetGenF(sorted(P), P))
 
-def magicPinGenFixedValeFull(n, P, V):
+def magicPinGenFixedValeFull(n, P, V): #, k = 0, given = [[]]):
 	k = 0
 	given = [[]]
 	while True:
 		if k == n:
-			return map(list.__getitem__, given, repeat(0))
+			return chain.from_iterable(given)
+			# return map(list.__getitem__, given, repeat(0))
 		if k in V:
 			res = map(operator.add, given, repeat([(k,)]))
 		elif k in P:
@@ -824,6 +825,7 @@ def magicPinGenFixedValeFull(n, P, V):
 			)
 		given = [*res] #for efficiency, I'd like not to evaluate res into a list each iteration, but it gives incorrect results otherwise.
 		k += 1
+		# return magicPinGenFixedValeFull(n, P, V, k + 1, res)
 
 # def magicPinGenFixedValeFull(n, P, V, k = 0, given = [[]]):
 	# if k == n:
