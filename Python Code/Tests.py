@@ -13,6 +13,10 @@ def gpgTTest(n, P, count = 1):
 	"""Tests average runtime of sg2.goodPinGen over 'count' (default 1) trials."""
 	return timeit('[*goodPinGen(%s, %s)]' % (repr(P), repr(n)), 'from SymmetricGroups2 import goodPinGen', number = count) / count
 
+def npgTTest(n, P, count = 1):
+	"""Tests average runtime of sg2.goodPinGen over 'count' (default 1) trials."""
+	return timeit('[*newPinGen(%s, %s)]' % (repr(P), repr(n)), 'from SymmetricGroups2 import newPinGen', number = count) / count
+
 def mpgTTest(n, P, count = 1):
 	"""Tests average runtime of sg2.magicPinGenFull over 'count' (default 1) trials.
 	Note that 'P' must be a set."""
@@ -34,11 +38,11 @@ def apgVTest(n):
 def tableGen(n, count = 1):
 	for P in sorted(sg2.admPinGen(n), key = lambda i: (len(i), i)):
 		pSet = {*P}
-		print('\\{%s\\} & %d & %.2f ms & %.2f ms & %.2f ms & %.2f ms \\\\\\cline{2-7}' % (
+		print('& \\{%s\\} & %d & %.2f ms & %.2f ms & %.2f ms & %.2f ms \\\\\\cline{2-7}' % (
 			', '.join(map(lambda i: str(i + 1), P)),
 			len({*sg2.magicPinGenFull(n, pSet)}),
 			bpgTTest(n, pSet, count) * 1000,
-			gpgTTest(n, pSet, 10 * count) * 1000,
+			npgTTest(n, pSet, 10 * count) * 1000,
 			abgTTest(n, pSet, 10 * count) * 1000,
 			mpgTTest(n, pSet, 10 * count) * 1000,
 		))
@@ -46,7 +50,9 @@ def tableGen(n, count = 1):
 def megaTest(n):
 	for P in sorted(sg2.admPinGen(n), key = lambda i: (len(i), i)):
 		pSet = {*P}
-		print(P, convToTupleSet(sg2.goodPinGen(pSet, n)) == convToTupleSet(sg2.magicPinGenFull(n, pSet)))
+		l1 = [*sg2.goodPinGen(pSet, n)]
+		l2 = [*sg2.newPinGen(pSet, n)]
+		print(convToTupleSet(l1) == convToTupleSet(l2), len(l1) == len(l2), len(l2), P)
 
 # def compGen(g1, g2
 

@@ -262,6 +262,14 @@ def fSOrbitIter(m):
 	for s in powIter(S):
 		yield fSActionS(m,s)
 
+def newFSOrbitIter(m):
+	out = [m]
+	V = tTAdd(m)[1]
+	for x in filter(lambda i: i not in V, range(len(m))):
+		new = [fSActionX(m, x) for m in out]
+		out.extend(new)
+	return out
+
 def fSTOrbitIter(m):
 	S = set(range(len(m)))
 	for s in powIter(S):
@@ -532,6 +540,9 @@ def altFSPRootGen(pins,n):
 	for a in fullArrGen(pins):
 		for pi in newPinPopulate(a, pins, n): yield pi
 
+def newFSPRootGen(pins, n):
+	return chain.from_iterable(newPinPopulate(a, pins, n) for a in newFullArrGen(pins))
+
 def oldArrGen(pins):
 	n = max(pins) + 1
 	for r in fSRootGen(pins):
@@ -559,6 +570,9 @@ def altPinGen(pins, n):
 
 def newFullArrGen(pins):
 	return chain.from_iterable(map(arrGen, repeat(pins), valeSetGenF(pins)))
+
+def newPinGen(pins, n):
+	return chain.from_iterable(map(newFSOrbitIter, newFSPRootGen(sorted(pins), n)))
 
 #Uses the generation sequence to build all the representatives.
 @altGenTree
@@ -705,20 +719,26 @@ def valid(mapping):
 	# k = elems.pop(0)
 	# lOps = newPVGen(elems, P, V)
 	# for op in lOps:
+
+def valeSetGenF(P):
+	P = sorted(P)
+	if not P:
+		return ([0],)
+	return valeSetGenFSub(P, set(P))
 		
 #P be a sorted list
-def valeSetGenF(P, pSet = None):
-	if not P:
-		yield [0]
-		return
-	if pSet is None:
-		pSet = {*P}
+def valeSetGenFSub(P, pSet = None):
+	# if not P:
+		# yield [0]
+		# return
+	# if pSet is None:
+		# pSet = {*P}
 	pm = P.pop(0)
 	if not P:
 		for v in filter(lambda i : i not in pSet, range(1, pm)):
 			yield [0, v]
 		return
-	for V in valeSetGenF(P, pSet):
+	for V in valeSetGenFSub(P, pSet):
 		for v in filter(lambda i : i not in pSet, range(1, min(pm, V[1]))):
 			nV = V.copy()
 			nV.insert(1, v)
@@ -781,7 +801,7 @@ def valeSetGenD(P, vM):
 
 #let P be a set
 def magicPinGenCR(n, P):
-	return chain.from_iterable(magicPinGenFixedValeCR(n, P, {*V}) for V in valeSetGenF(sorted(P), P))
+	return chain.from_iterable(magicPinGenFixedValeCR(n, P, {*V}) for V in valeSetGenF(P))
 
 def magicPinGenFixedValeCR(n, P, V, k = 0, given = [[]]):
 	if k == n:
@@ -796,7 +816,7 @@ def magicPinGenFixedValeCR(n, P, V, k = 0, given = [[]]):
 
 #let P be a set
 def magicPinGenFull(n, P):
-	return chain.from_iterable(magicPinGenFixedValeFull(n, P, {*V}) for V in valeSetGenF(sorted(P), P))
+	return chain.from_iterable(magicPinGenFixedValeFull(n, P, {*V}) for V in valeSetGenF(P))
 
 def magicPinGenFixedValeFull(n, P, V): #, k = 0, given = [[]]):
 	k = 0
