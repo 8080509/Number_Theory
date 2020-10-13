@@ -1,5 +1,6 @@
 from SymmetricGroups3 import *
 
+# extracts the pinnacle and vale set permutation
 def pvPerm(pi):
 	pPerm = []
 	vPerm = []
@@ -15,6 +16,7 @@ def pvPerm(pi):
 	if not pDir: vPerm.append(pVal)
 	return tuple(pPerm), tuple(vPerm)
 
+# computes the minimum vale set for the given pinnacle set
 def minValeSet(P):
 	V = set()
 	count = len(P) + 1
@@ -24,6 +26,7 @@ def minValeSet(P):
 		i += 1
 	return V
 
+# creates a dictionary mapping admissible all admissible pinnacle permutations to their admissible vale permutations.
 def pvPermDict(P):
 	out = dict()
 	for pi in magicPinGenFixedValeFull(max(P) + 1, P, minValeSet(P)):
