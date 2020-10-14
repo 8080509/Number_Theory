@@ -43,3 +43,9 @@ def test(pd):
 
 def fullTest(P):
 	return test(pvPermDict(P))
+
+def divFact(P):
+	pv = pvPermDict(P)
+	pinCount = len(pv)
+	total = sum(map(len, pv.values()))
+	return pinCount, total, total / pinCount
