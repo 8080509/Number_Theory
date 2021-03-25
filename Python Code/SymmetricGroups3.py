@@ -247,7 +247,7 @@ def subsetIterComp(coll, k): #Iterates through the k-element subsets of a collec
 
 def admValIter(pins):
 	if not pins:
-		yield {1}
+		yield {0}
 		return
 	coll = [i for i in range(1, max(pins)) if i not in pins]
 	for i in subsetIter(coll, len(pins)):
