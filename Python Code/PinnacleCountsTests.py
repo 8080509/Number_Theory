@@ -65,6 +65,22 @@ def sg3newPinGenCount(n, P, v):
 	for pi in sg3.newPinGen(P, n): count += 1
 	return count
 
+
+
+def checkCountsSingle(F, G, n, P, v):
+	return F(n, P, v) == G(n, P, v)
+
+def checkCountsPoly(F, G, n, v):
+	return all(map(lambda i: checkCountsSingle(F, G, n, i, v), admPinGen(n, v)))
+
+def checkCountsPoly_getFail(F, G, n, v):
+	for P in admPinGen(n, v):
+		if checkCountsSingle(n, P, v): continue
+		return (n, P, v)
+	return None
+
+
+
 def checkSg3fcBySg3npgcSingle(n, P, v):
 	return sg3fCount(n, P, v) == sg3newPinGenCount(n, P, v)
 
@@ -113,13 +129,27 @@ def checkOfcBySg3fcPoly_getFail(n, v):
 		return (n, P, v)
 	return None
 
+
+
+def timeCounter(func, n, P, v, count = 1):
+	return timeit(lambda: func(n, P, v), number = count) / count
+
 def timeOfc(n, P, v, count = 1):
 	return timeit(lambda: pc.origFCount(n, P, v), number = count) / count
 
 def timePcCount(n, P, v, count = 1):
 	return timeit(lambda: pc.fullCount(n, P, v), number = count) / count
 
+def simpleFactorial(n):
+	prod = 1
+	for k in range(1, n + 1): prod *= k
+	return prod
 
+def totalCountVerif(func, n, v):
+	acc = 0
+	for P in admPinGen(n, v):
+		acc += func(n, P, v)
+	return acc == simpleFactorial(n)
 
 
 
