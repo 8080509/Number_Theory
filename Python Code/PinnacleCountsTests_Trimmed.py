@@ -1,6 +1,4 @@
 
-import PinnacleCounts as pc
-import SymmetricGroups3 as sg3
 from timeit import timeit
 
 
@@ -36,34 +34,6 @@ def admPinFilt(P, v):
 
 def admPinGen(n, v):
 	return filter(lambda i: admPinFilt(i, v), pinSetCandGen(n, v))
-
-def pcCount(n, P, v):
-	return pc.fullCount(n, P, v)
-
-def sg3fCountAltVSG(p, n = None):
-	acc = 0
-	for v in pc.valeSetGen(p, 0):
-		acc += sg3.pvCount(p, v)
-	if n is not None:
-		acc *= 2**(n - len(p) - 1)
-	return acc
-
-def pcSg3fcavsg(n, P, v):
-	P = [p - v for p in P]
-	return sg3fCountAltVSG(P, n)
-
-def pcOrigFCount(n, P, v):
-	return pc.origFCount(n, P, v)
-
-def sg3fCount(n, P, v):
-	P = [p - v for p in P]
-	return sg3.fCount(P, n)
-
-def sg3newPinGenCount(n, P, v):
-	P = [p - v for p in P]
-	count = 0
-	for pi in sg3.newPinGen(P, n): count += 1
-	return count
 
 
 

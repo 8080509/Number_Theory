@@ -162,7 +162,7 @@ def compCount(ell, g, t):
 		ti = t[i]
 		acc = 0
 		for k in range(ti+1):
-			acc += binom(ti, k) * neg1Pow(k) * intPow(N, g[i])
+			acc += binom(ti, k) * neg1Pow(k) * (N ** g[i])# intPow(N, g[i])
 			N += 1
 		# N' = N + ti + 1
 		N -= 1
@@ -249,8 +249,62 @@ def origFCount(n, P, v):
 	for V in valeSetGen(P, v):
 		acc += pvCount(P, V, v)
 	return acc << (n - len(P) - 1)
-			
 
+def nonNegWalkGenSub(ell, ind, acc, storage):
+	"INCOMPLETE"
+	if ind == ell:
+		yield (acc, storage)
+		return
+	nInd = ind + 1
+	if acc:
+		storage[ind] = -1
+		yield from nonNegWalkGenSub(ell, nInd, acc - 1, storage)
+	storage[ind] = 0
+	yield from nonNegWalkGenSub(ell, nInd, acc, storage)
+	storage[ind] = 1
+	yield from nonNegWalkGenSub(ell, nInd, acc + 1, storage)
+
+def nonNegWalkGen(storage):
+	"INCOMPLETE"
+	return nonNegWalkGenSub(len(storage), 0, 0, storage)
+
+def binomList(n):
+	"INCOMPLETE"
+	out = [0] * (n + 1)
+	for i in range(n + 1):
+		out[i] = binom(n, i)
+	return out
+
+def slopeCount(n, P, v):
+	"INCOMPLETE"
+	acc = 0
+	ell = len(P)
+	t = [0] * ell
+	binom2k = binomList(2)
+	for T, _ in nonNegWalkGen(t):
+		prod = neg1Pow(T + ell)
+		prev = v
+		Tk = T + 1
+		for (tk, pk) in zip(reversed(t), P):
+			prod *= binom2k[tk + 1] * (Tk ** (pk - prev))
+			prev = pk
+		acc += prod
+	return acc << (n - (2 * ell) - 1)
+
+def slopeCount2(n, P, v):
+	"INCOMPLETE"
+	acc = 0
+	ell = len(P)
+	t = [0] * ell
+	binom2k = binomList(2)
+	pInd = lambda i: P[i] if i >= 0 else v
+	for T, _ in nonNegWalkGen(t):
+		prod = neg1Pow(T + ell)
+		prev = v
+		for k in range(ell):
+			prod *= binom2k[t[k] + 1] * (sum(t[:k+1], 1) ** (pInd[ell - k] - pInd[ell - k - 1]))
+		acc += prod
+	return acc << (n - (2 * ell) - 1)
 
 
 
